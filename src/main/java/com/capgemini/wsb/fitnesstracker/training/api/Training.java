@@ -39,7 +39,16 @@ public class Training {
 
     @Column(name = "average_speed")
     private double averageSpeed;
-
+    /**
+     * Constructs a new Training with the specified details.
+     *
+     * @param user the user associated with the training
+     * @param startTime the start time of the training
+     * @param endTime the end time of the training
+     * @param activityType the type of activity
+     * @param distance the distance covered
+     * @param averageSpeed the average speed during the training
+     */
     public Training(
             final User user,
             final Date startTime,

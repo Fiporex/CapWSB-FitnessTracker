@@ -1,5 +1,8 @@
 package com.capgemini.wsb.fitnesstracker.training.internal;
 
+/**
+ * Enumeration representing different types of activities.
+ */
 // TODO : JavaDoc
 public enum ActivityType {
 
