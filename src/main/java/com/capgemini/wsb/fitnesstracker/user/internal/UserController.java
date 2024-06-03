@@ -24,7 +24,6 @@ class UserController {
      * @return A list of UserDto objects
      */
     @GetMapping
-    @GetMapping
     public List<UserDto> getAllUsers() {
         return userService.findAllUsers()
                 .stream()
