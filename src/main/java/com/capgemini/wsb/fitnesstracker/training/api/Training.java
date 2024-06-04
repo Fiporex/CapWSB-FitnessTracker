@@ -39,6 +39,20 @@ public class Training {
 
     @Column(name = "average_speed")
     private double averageSpeed;
+
+    // Dodane metody setterów
+    public void setDistance(double distance) {
+        this.distance = distance;
+    }
+
+    public void setAverageSpeed(double averageSpeed) {
+        this.averageSpeed = averageSpeed;
+    }
+
+    public void setEndTime(Date endTime) {
+        this.endTime = endTime;
+    }
+
     /**
      * Constructs a new Training with the specified details.
      *
@@ -63,5 +77,4 @@ public class Training {
         this.distance = distance;
         this.averageSpeed = averageSpeed;
     }
-
 }

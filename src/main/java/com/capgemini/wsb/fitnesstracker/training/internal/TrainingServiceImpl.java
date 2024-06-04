@@ -5,6 +5,9 @@ import com.capgemini.wsb.fitnesstracker.training.api.TrainingProvider;
 import com.capgemini.wsb.fitnesstracker.user.api.User;
 import com.capgemini.wsb.fitnesstracker.user.internal.UserDto;
 import org.springframework.stereotype.Service;
+import com.capgemini.wsb.fitnesstracker.training.internal.ActivityType;
+import com.capgemini.wsb.fitnesstracker.training.internal.TrainingDto;
+import com.capgemini.wsb.fitnesstracker.training.api.TrainingNotFoundException;
 
 import java.util.List;
 import java.util.Optional;
@@ -12,15 +15,13 @@ import java.util.stream.Collectors;
 /**
  * Service implementation for managing trainings.
  */
+import java.util.Date;
+
 @Service
 class TrainingServiceImpl implements TrainingProvider {
 
     private final TrainingRepository trainingRepository;
-    /**
-     * Constructs a new TrainingServiceImpl with the specified TrainingRepository.
-     *
-     * @param trainingRepository the training repository
-     */
+
     public TrainingServiceImpl(TrainingRepository trainingRepository) {
         this.trainingRepository = trainingRepository;
     }
@@ -34,24 +35,51 @@ class TrainingServiceImpl implements TrainingProvider {
     public List<Training> getAllTrainings() {
         return trainingRepository.findAll();
     }
-    /**
-     * Retrieves all trainings as TrainingDto objects.
-     *
-     * @return A list of TrainingDto objects
-     */
+
+    public List<Training> getTrainingsByUser(User user) {
+        return trainingRepository.findAll().stream()
+                .filter(training -> training.getUser().equals(user))
+                .collect(Collectors.toList());
+    }
+
+    public List<Training> getTrainingsByEndDate(Date endDate) {
+        return trainingRepository.findAll().stream()
+                .filter(training -> training.getEndTime().after(endDate))
+                .collect(Collectors.toList());
+    }
+
+    public List<Training> getTrainingsByActivityType(ActivityType activityType) {
+        return trainingRepository.findAll().stream()
+                .filter(training -> training.getActivityType().equals(activityType))
+                .collect(Collectors.toList());
+    }
+
+    public Training saveTraining(Training training) {
+        return trainingRepository.save(training);
+    }
+
+    public Training updateTraining(Long id, Training updatedTraining) {
+        Optional<Training> trainingOptional = trainingRepository.findById(id);
+        if (trainingOptional.isPresent()) {
+            Training training = trainingOptional.get();
+            training.setDistance(updatedTraining.getDistance());
+            training.setAverageSpeed(updatedTraining.getAverageSpeed());
+            training.setEndTime(updatedTraining.getEndTime());
+            return trainingRepository.save(training);
+        } else {
+            throw new TrainingNotFoundException(id);
+        }
+    }
+
+
     public List<TrainingDto> getAllTrainingsDto() {
         List<Training> trainings = getAllTrainings();
         return trainings.stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }
-    /**
-     * Converts a Training object to a TrainingDto object.
-     *
-     * @param training the training object to be converted
-     * @return the converted TrainingDto object
-     */
-    private TrainingDto convertToDto(Training training) {
+
+    public TrainingDto convertToDto(Training training) {
         TrainingDto dto = new TrainingDto();
         dto.setId(training.getId());
         dto.setUser(convertUserToDto(training.getUser()));
@@ -62,14 +90,23 @@ class TrainingServiceImpl implements TrainingProvider {
         dto.setAverageSpeed(training.getAverageSpeed());
         return dto;
     }
-    /**
-     * Converts a User object to a UserDto object.
-     *
-     * @param user the user object to be converted
-     * @return the converted UserDto object
-     */
+
+    public Training convertToEntity(TrainingDto trainingDto) {
+        return new Training(
+                convertDtoToUser(trainingDto.getUser()),
+                trainingDto.getStartTime(),
+                trainingDto.getEndTime(),
+                trainingDto.getActivityType(),
+                trainingDto.getDistance(),
+                trainingDto.getAverageSpeed()
+        );
+    }
+
     private UserDto convertUserToDto(User user) {
         return new UserDto(user.getId(), user.getFirstName(), user.getLastName(), user.getBirthdate(), user.getEmail());
     }
-}
 
+    private User convertDtoToUser(UserDto userDto) {
+        return new User(userDto.id(), userDto.firstName(), userDto.lastName(), userDto.birthdate(), userDto.email());
+    }
+}
