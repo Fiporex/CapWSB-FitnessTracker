@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 import java.util.Date;
 
 @Service
-class TrainingServiceImpl implements TrainingProvider {
+public class TrainingServiceImpl implements TrainingProvider {
 
     private final TrainingRepository trainingRepository;
 
